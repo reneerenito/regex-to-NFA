@@ -10,5 +10,8 @@ WORKDIR /app
 # Copy the source code into the container
 COPY . .
 
-# Container starts by compiling the code and running the validator
-CMD ["sh", "-c", "cmake . && make && ./regex_to_nfa -t"]
+# Compiles the code and runs the program with the given flag.
+# Default is -t (validator); pass -r after the image name for postfix mode:
+#   echo 'a(b|c)*' | docker run --rm -i regex_validator -r
+ENTRYPOINT ["sh", "-c", "cmake . >/dev/null && make >/dev/null && ./regex_to_nfa \"$@\"", "--"]
+CMD ["-t"]
