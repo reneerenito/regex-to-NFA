@@ -57,7 +57,9 @@ echo 'a(b|c)*' | ./regex_to_nfa -r
 | `src/regex.h` | 🔗 Interfaz compartida | Struct `regex` (`items[i].value`, `size`) que `main.c` consume. |
 | `src/regex.c` | ⬜ Parte 2 | `parse_regex()` ya llama a `tokenize()` y maneja errores. **El `TODO` marca dónde va Shunting-Yard.** Hoy regresa los tokens en infijo con `.` explícito. |
 | `src/nfa.h` / `src/nfa.c` | ⬜ Parte 3 | Stubs de `regex_to_nfa()` (Thompson) y `match_nfa()` (hoy siempre regresa 0). El struct `nfa` es placeholder: **cámbienlo por lo que necesiten**. |
-| `CMakeLists.txt` | 🏛️ Esqueleto | Build. Si agregan archivos `.c`, hay que listarlos aquí. |
+| `tests/test_tokenizer.c` | 🧪 Pruebas | Pruebas unitarias del tokenizador: clasificación, validación e inserción del `.`. |
+| `tests/test_regex.c` | 🧪 Pruebas | Pruebas de `parse_regex` con el contrato actual (actualizar los esperados cuando exista Shunting-Yard). |
+| `CMakeLists.txt` | 🏛️ Esqueleto (+ tests) | Build. Si agregan archivos `.c`, hay que listarlos aquí. Define también los targets de prueba para `ctest`. |
 | `Dockerfile` | 🏛️ Esqueleto (CMD ajustado) | Compila y ejecuta en el contenedor. Default: `-t`; acepta `-r` como argumento. |
 
 ---
@@ -98,6 +100,25 @@ La salida es `out->items`: arreglo de `{type, value}` con tamaño `out->size`, l
 ### 🤝 Para quien haga la parte 2 (Shunting-Yard)
 
 Trabajen en el `TODO` de `parse_regex()` (`src/regex.c`). La `token_list` que reciben ya viene validada y balanceada — no necesitan re-checar errores. El `.` insertado es un operador binario más. Precedencia sugerida: `*` `+` `?` > `.` > `|`.
+
+---
+
+## 🧪 Pruebas unitarias
+
+Cada componente tiene su propio binario de pruebas en `tests/`, compilado únicamente con los archivos que necesita, para poder validarlo de forma independiente. Se corren con `ctest`:
+
+```bash
+# Con Docker
+docker build -t regex_validator .
+docker run --rm --entrypoint sh regex_validator -c 'cmake . >/dev/null && make >/dev/null && ctest --output-on-failure'
+
+# Local (build fuera del repo para no ensuciar)
+cmake -S . -B build && make -C build && ctest --test-dir build --output-on-failure
+```
+
+- `test_tokenizer` — 24 casos: inserción del `.`, manejo de espacios, clasificación de tipos de token y todos los errores de sintaxis.
+- `test_regex` — verifica el contrato actual de `parse_regex` (tokens en infijo con `.` explícito). Quien haga la parte 2 solo actualiza los valores esperados a postfijo.
+- Cuando exista la parte 3, agreguen `tests/test_nfa.c` con el mismo patrón y su `add_test` en `CMakeLists.txt`.
 
 ---
 
