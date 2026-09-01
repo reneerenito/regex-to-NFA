@@ -11,7 +11,6 @@ WORKDIR /app
 COPY . .
 
 # Compiles the code and runs the program with the given flag.
-# Default is -t (validator); pass -r after the image name for postfix mode:
-#   echo 'a(b|c)*' | docker run --rm -i regex_validator -r
+# Default mode is -t and you can pass -r after the image name instead.
 ENTRYPOINT ["sh", "-c", "cmake . >/dev/null && make >/dev/null && ./regex_to_nfa \"$@\"", "--"]
 CMD ["-t"]

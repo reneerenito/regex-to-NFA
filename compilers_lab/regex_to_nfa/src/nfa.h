@@ -1,3 +1,6 @@
+/* Estructura provisional del NFA. Quien implemente esta parte puede
+   cambiarla por completo según lo necesite la construcción de Thompson. */
+
 #ifndef NFA_H
 #define NFA_H
 

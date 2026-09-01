@@ -13,9 +13,10 @@ regex parse_regex(const char *str)
         exit(1);
     }
 
-    /* TODO: aplicar Shunting-Yard sobre `tokens` para producir la regex en
-       postfijo. Por ahora se regresan los tokens en orden infijo con la
-       concatenación ya explícita. */
+    /* TODO aplicar Shunting Yard sobre los tokens para obtener el postfijo.
+       Por ahora se regresan tal cual salen del tokenizador, en orden infijo
+       y con la concatenación ya explícita, para que la siguiente etapa los
+       consuma directamente. */
     regex r;
     r.size = tokens.size;
     r.items = malloc(sizeof(regex_item) * tokens.size);
