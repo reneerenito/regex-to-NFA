@@ -8,9 +8,6 @@ static int is_unary_operator(char c)
     return c == '*' || c == '+' || c == '?';
 }
 
-/* Hay concatenación implícita cuando el token anterior puede "terminar" una
-   expresión (literal, ')', operador unario) y el actual puede "empezar" una
-   (literal, '('). Ej: a(  )b  *a  ab */
 static int needs_concat(const token *prev, const token *curr)
 {
     if (prev == NULL)
@@ -36,7 +33,6 @@ tokenize_status tokenize(const char *str, token_list *out)
 {
     int len = strlen(str);
     out->size = 0;
-    /* Peor caso: un '.' insertado antes de cada token original */
     out->items = malloc(sizeof(token) * (len * 2 + 1));
 
     int depth = 0;
@@ -47,8 +43,6 @@ tokenize_status tokenize(const char *str, token_list *out)
         char c = str[i];
         token curr;
 
-        /* Espacios/tabs se ignoran: el enunciado usa `printf ' %s\n'`,
-           que mete un espacio antes de cada línea */
         if (isspace((unsigned char)c))
             continue;
 
@@ -84,8 +78,6 @@ tokenize_status tokenize(const char *str, token_list *out)
 
         token *prev = out->size > 0 ? &out->items[out->size - 1] : NULL;
 
-        /* Operadores sueltos: unario sin nada que repetir ('*ab', '(*a', 'a|*b')
-           o '|' sin operando izquierdo ('|ab', '(|a', 'a||b') */
         if (curr.type == TOKEN_OPERATOR)
         {
             int prev_is_operand = prev != NULL &&
@@ -99,7 +91,6 @@ tokenize_status tokenize(const char *str, token_list *out)
             }
         }
 
-        /* '|' sin operando derecho antes de cerrar paréntesis: '(a|)' */
         if (curr.type == TOKEN_RPAREN && prev != NULL &&
             prev->type == TOKEN_OPERATOR && prev->value == '|')
         {
@@ -126,7 +117,6 @@ tokenize_status tokenize(const char *str, token_list *out)
             status = TOKENIZE_ERR_UNBALANCED_PARENS;
         else
         {
-            /* '|' sin operando derecho al final: 'ab|' */
             token *last = &out->items[out->size - 1];
             if (last->type == TOKEN_OPERATOR && last->value == '|')
                 status = TOKENIZE_ERR_MISPLACED_OPERATOR;

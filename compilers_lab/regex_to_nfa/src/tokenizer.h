@@ -31,9 +31,6 @@ typedef enum
     TOKENIZE_ERR_MISPLACED_OPERATOR
 } tokenize_status;
 
-/* Tokeniza la regex cruda, valida la sintaxis e inserta el operador de
-   concatenación explícita '.' donde dos tokens consecutivos lo implican.
-   Deja en *out la lista de tokens lista para Shunting-Yard. */
 tokenize_status tokenize(const char *str, token_list *out);
 
 const char *tokenize_error_message(tokenize_status status);
