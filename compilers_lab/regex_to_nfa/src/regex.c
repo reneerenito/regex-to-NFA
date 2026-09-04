@@ -3,6 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+* Convierte una expresion de regular a notacion posfija usando
+* el algoritmo Shunting-Yard.
+*/
+
 regex parse_regex(const char *str)
 {
     token_list tokens;
