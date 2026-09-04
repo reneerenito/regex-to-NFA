@@ -1,3 +1,7 @@
+/* Tipos y funciones del tokenizador. La función principal recibe la regex
+   cruda y entrega la lista de tokens con la concatenación ya explícita,
+   junto con un estado que describe cualquier error de sintaxis. */
+
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 

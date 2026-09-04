@@ -1,3 +1,8 @@
+/* Parte uno de la práctica. Recorre la regex cruda carácter por carácter,
+   clasifica cada token, valida la sintaxis por el camino y agrega el punto
+   donde la concatenación es implícita. La lista que sale de aquí es la que
+   consume la etapa de Shunting Yard. */
+
 #include "tokenizer.h"
 #include <ctype.h>
 #include <stdlib.h>
@@ -8,6 +13,10 @@ static int is_unary_operator(char c)
     return c == '*' || c == '+' || c == '?';
 }
 
+/* Hay concatenación implícita cuando el token anterior puede terminar una
+   expresión, ya sea un literal, un paréntesis que cierra o un operador
+   unario, y el actual puede comenzar otra, ya sea un literal o un
+   paréntesis que abre. Así ab se convierte en a.b */
 static int needs_concat(const token *prev, const token *curr)
 {
     if (prev == NULL)
@@ -33,6 +42,7 @@ tokenize_status tokenize(const char *str, token_list *out)
 {
     int len = strlen(str);
     out->size = 0;
+    /* En el peor caso se inserta un punto antes de cada token original */
     out->items = malloc(sizeof(token) * (len * 2 + 1));
 
     int depth = 0;
@@ -43,6 +53,8 @@ tokenize_status tokenize(const char *str, token_list *out)
         char c = str[i];
         token curr;
 
+        /* El enunciado arma la entrada con printf y deja un espacio al
+           inicio de cada línea, así que los espacios se ignoran */
         if (isspace((unsigned char)c))
             continue;
 
@@ -78,6 +90,9 @@ tokenize_status tokenize(const char *str, token_list *out)
 
         token *prev = out->size > 0 ? &out->items[out->size - 1] : NULL;
 
+        /* Un operador necesita que lo anterior sea un operando completo.
+           Esto rechaza unarios sin nada que repetir como *ab y uniones
+           sin operando izquierdo como a||b */
         if (curr.type == TOKEN_OPERATOR)
         {
             int prev_is_operand = prev != NULL &&
@@ -91,6 +106,7 @@ tokenize_status tokenize(const char *str, token_list *out)
             }
         }
 
+        /* Una unión justo antes de cerrar el grupo se queda sin operando derecho */
         if (curr.type == TOKEN_RPAREN && prev != NULL &&
             prev->type == TOKEN_OPERATOR && prev->value == '|')
         {
@@ -98,6 +114,7 @@ tokenize_status tokenize(const char *str, token_list *out)
             break;
         }
 
+        /* Un grupo vacío no describe ningún lenguaje y se considera error */
         if (curr.type == TOKEN_RPAREN && prev != NULL && prev->type == TOKEN_LPAREN)
         {
             status = TOKENIZE_ERR_EMPTY_PARENS;
@@ -117,6 +134,7 @@ tokenize_status tokenize(const char *str, token_list *out)
             status = TOKENIZE_ERR_UNBALANCED_PARENS;
         else
         {
+            /* La unión tampoco puede quedar al final de toda la expresión */
             token *last = &out->items[out->size - 1];
             if (last->type == TOKEN_OPERATOR && last->value == '|')
                 status = TOKENIZE_ERR_MISPLACED_OPERATOR;

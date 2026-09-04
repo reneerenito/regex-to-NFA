@@ -1,3 +1,6 @@
+/* Representación de la regex que main.c consume e imprime. Cada item
+   guarda un carácter de la expresión ya procesada. */
+
 #ifndef REGEX_H
 #define REGEX_H
 
