@@ -1,7 +1,6 @@
-/* Pruebas de parse_regex. Mientras Shunting Yard no esté implementado el
-   contrato es regresar los tokens en orden infijo con la concatenación
-   explícita. Cuando la parte dos exista basta con actualizar los valores
-   esperados a la notación postfija. */
+/* Pruebas de parse_regex. Mientras Shunting Yard el
+   contrato es regresar los tokens en orden posfijo con la concatenación
+   explícita. */
 
 #include "regex.h"
 #include <stdio.h>
@@ -46,12 +45,27 @@ int main(void)
 {
     printf("Pruebas de parse_regex\n\n");
 
-    esperar("ab", "a.b");
-    esperar("a(b|c)*", "a.(b|c)*");
-    esperar("(ab)*", "(a.b)*");
-    esperar("a|b|c", "a|b|c");
-    esperar(" (ab) ", "(a.b)");
+    esperar("ab", "ab.");
+    esperar("a(b|c)*", "abc|*.");
+    esperar("(ab)*", "ab.*");
+    esperar("a|b|c", "ab|c|");
+    esperar("(ab)", "ab.");
+	esperar("((a))", "a");
+	esperar("(a|b)(c|d)", "ab|cd|.");
+	esperar("a(b|c)d", "abc|.d.");
+	esperar("(a|b)*c", "ab|*c.");
+	esperar("(a|(b|c))", "abc||");
+	esperar("a(bc)*d", "abc.*.d.");
 
     printf("\n%d pruebas, %d fallidas\n", total, fallidas);
+
+	regex resultado = parse_regex("((a))");
+	char resultado_string[128];
+    int i;
+    for (i = 0; i < resultado.size && i < 127; i++)
+        resultado_string[i] = resultado.items[i].value;
+    resultado_string[i] = '\0';
+    printf("[%s] len=%zu size=%d\n", resultado_string, strlen(resultado_string), resultado.size);
+    free(resultado.items);
     return fallidas > 0;
 }
