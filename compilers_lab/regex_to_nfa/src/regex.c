@@ -154,13 +154,16 @@ bool is_operator(char* c){
  * @return true o false si tiene mayor o igual jerarquia alta.
 */
 bool has_higher_precedence(char* current_c, char* top_stack_c){
-  if ((*current_c == '|') && ((*top_stack_c == '|' ) || (*top_stack_c == '*') || (*top_stack_c == '.') || (*top_stack_c == '?')))
+
+  if ((*current_c == '|') && ((*top_stack_c == '|' ) || (*top_stack_c == '*') || (*top_stack_c == '.') || (*top_stack_c == '+') || (*top_stack_c == '?')))
 	return true;
-  else if ((*current_c == '?') && ((*top_stack_c == '|' ) || (*top_stack_c == '*') || (*top_stack_c == '.') || (*top_stack_c == '?')))
+  else if ((*current_c == '?') && ((*top_stack_c == '*' ) || (*top_stack_c == '?') || (*top_stack_c == '+')))
 	return true;
-  else if ((*current_c == '.') && ((*top_stack_c == '*') || (*top_stack_c == '.')))
+  else if ((*current_c == '.') && ((*top_stack_c == '*') || (*top_stack_c == '.') || (*top_stack_c == '+') || (*top_stack_c == '?')))
 	return true;
-  else if ((*current_c == '*') && (*top_stack_c == '*'))
+  else if ((*current_c == '*') && ((*top_stack_c == '*') || (*top_stack_c == '+')))
+	return true;
+  else if ((*current_c == '+') && ((*top_stack_c == '*') || (*top_stack_c == '+')))
 	return true;
   
   return false;
